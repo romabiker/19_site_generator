@@ -12,6 +12,7 @@ from jinja2 import (
      Markup,
      select_autoescape,
      )
+from livereload import Server
 from markdown import Markdown
 
 
@@ -53,7 +54,8 @@ def check_dirpath(dirpath):
     return dirpath
 
 
-def create_article_html(article_context, j2_env, md_root, templ='article.html'):
+def create_article_html(article_context, j2_env,
+                        md_root, templ='article.html'):
     article_markdown = load_article_md(md_root, article_context['source'])
     article_markup = Markup(Markdown().convert(article_markdown))
     return j2_env.get_template(templ).render(
@@ -65,7 +67,7 @@ def create_article_html(article_context, j2_env, md_root, templ='article.html'):
 def create_index_html(site_context, j2_env, templ='index.html'):
     return j2_env.get_template(templ).render(articles=site_context)
 
-    
+
 def collect_static_files_for_site(static, html_root):
     shutil.copytree(static, os.path.join(html_root, static))
 
@@ -76,9 +78,9 @@ def create_relative_url(source):
 
 
 def generate_site_from_markdown(md_root, html_root, json_conf, j2_env, static):
-    shutil.rmtree(html_root)
     site_context = make_site_context(json_conf)
     index_html = create_index_html(site_context, j2_env)
+    shutil.rmtree(html_root)
     save_index_html_to_rootdir(index_html, html_root)
     for article_context in site_context:
         article_html = create_article_html(article_context, j2_env, md_root)
@@ -86,13 +88,24 @@ def generate_site_from_markdown(md_root, html_root, json_conf, j2_env, static):
     collect_static_files_for_site(static, html_root)
 
 
-def load_site_config(file_handler):
+def load_site_config(file_handler, start=0):
+    file_handler.seek(start)  # for server reload make_site
     return json.load(file_handler)
 
 
 def load_article_md(md_root, source_md):
     with open(os.path.join(md_root, source_md), 'r') as file_handler:
         return file_handler.read()
+
+
+def make_site():  # wrap generate_site_from_markdown for use in server.watch
+    generate_site_from_markdown(
+            md_root=namespace.md_root,
+            html_root=namespace.html_root,
+            json_conf=namespace.json_conf,
+            j2_env=create_jinja_env(namespace.templates),
+            static=namespace.static,
+            )
 
 
 def make_site_context(json_conf):
@@ -126,10 +139,7 @@ def save_article_html_in_dir(article_html, article_context, html_root):
 if __name__ == '__main__':
     parser = create_parser()
     namespace = parser.parse_args(sys.argv[1:])
-    generate_site_from_markdown(
-            md_root=namespace.md_root,
-            html_root=namespace.html_root,
-            json_conf=namespace.json_conf,
-            j2_env=create_jinja_env(namespace.templates),
-            static=namespace.static,
-            )
+    make_site()
+    server = Server()
+    server.watch(namespace.templates, make_site)
+    server.serve(root=namespace.html_root)

@@ -1,6 +1,6 @@
 # Encyclopedia
 
-The project is intended for generating static sites like encyclopedia from pages made in markdown markup.
+The project is intended for generating static sites like encyclopedia from pages made in markdown markup. Integrated with "livereload" to regenerate site on changes in templates, after then reload server and reload page in the browser.
 
 
 ## Example of the generated site:
