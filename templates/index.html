@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block head_title %}Содержание{% endblock %}
+{% block style %}{{ super() }}{% endblock %}
+{% block head_extra %}{% endblock %}
+
+{% block content %}
+    <div class="row">
+      <div class="page-header">
+        <h1>Содержание</h1>
+      </div>
+    </div>
+    <div>
+        <div class="row justify-content-center">
+            {% for grouper, list in articles|groupby('topic_ru') %}
+            <div class="col-md-10">
+                <h3>{{ grouper }}</h3>
+                <ul>
+                    {% for article in list %}
+                        <li class=""><a href="{{ article.rel_url }}">{{ article.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div> {# col #}
+            {% endfor %}
+        </div> {# row #}
+
+    </div>
+{% endblock %}
+
+{% block custom_js %}{{ super() }}{% endblock %}
+

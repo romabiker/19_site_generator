@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block head_title %}{{ article_context.title }}{% endblock %}
+{% block style %}<link href="../static/css/base_custom.css" rel="stylesheet">{% endblock %}
+{% block head_extra %}{% endblock %}
+
+{% block content %}
+    <div class="row">
+      <div class="page-header col-md-10">
+        <h1>{{ article_context.title }}</h1>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="card col-12 col-md-10">
+          <div class="card-body">
+            <blockquote class="blockquote">
+              {{ article_markup }}
+            </blockquote>
+          </div>
+        </div>
+        <div class="col-12 col-md-10">
+          <a href="../index.html">Содержание</a>   |  <a href="#page-top">Наверх</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_js %}
+    <script type="text/javascript" src="../static/js/base_custom.js"></script>
+{% endblock %}
+
+
+
